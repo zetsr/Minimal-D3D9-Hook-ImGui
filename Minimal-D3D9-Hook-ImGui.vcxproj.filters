@@ -10,19 +10,11 @@
     <Filter Include="MinHook">
       <UniqueIdentifier>{514c2673-b717-4f52-8d04-ce086361fc54}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MinHook\include">
+      <UniqueIdentifier>{c8505d5d-b451-43e4-9b66-0abbe32e5c0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="MinHook\libMinHook.x64.lib">
-      <Filter>MinHook</Filter>
-    </Library>
-    <Library Include="MinHook\libMinHook.x86.lib">
-      <Filter>MinHook</Filter>
-    </Library>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="MinHook\MinHook.h">
-      <Filter>MinHook</Filter>
-    </ClInclude>
     <ClInclude Include="Main\mdx9_api.h">
       <Filter>Main</Filter>
     </ClInclude>
@@ -49,6 +41,9 @@
     </ClInclude>
     <ClInclude Include="ImGui\imstb_truetype.h">
       <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="MinHook\include\MinHook.h">
+      <Filter>MinHook\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
