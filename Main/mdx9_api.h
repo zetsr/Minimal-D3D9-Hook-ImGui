@@ -14,6 +14,7 @@
 #pragma warning(disable: 26451)
 #pragma warning(disable: 26812)
 #include "../ImGui/imgui.h"
+#include "../ImGui/imgui_internal.h"
 #include "../ImGui/imgui_impl_win32.h"
 #include "../ImGui/imgui_impl_dx9.h"
 #include "../MinHook/include/MinHook.h"
@@ -26,6 +27,13 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 // Main namespace for all globals
 namespace g_MDX9 {
+    // Fonts
+    extern ImFont* g_Alibaba_PuHuiTi_Regular;
+    extern ImFont* g_Alibaba_PuHuiTi_Bold;
+    extern ImFont* g_Alibaba_PuHuiTi_Heavy;
+    extern ImFont* g_Alibaba_PuHuiTi_Light;
+    extern ImFont* g_Alibaba_PuHuiTi_Medium;
+
     // Hook function pointer types
     typedef HRESULT(STDMETHODCALLTYPE* PFN_EndScene)(LPDIRECT3DDEVICE9 pDevice);
     typedef HRESULT(STDMETHODCALLTYPE* PFN_Reset)(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);

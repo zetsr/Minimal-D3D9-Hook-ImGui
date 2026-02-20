@@ -1,5 +1,11 @@
 #include "mdx9_api.h"
 
+#include "../Font/Alibaba-PuHuiTi-Bold.h"
+#include "../Font/Alibaba-PuHuiTi-Heavy.h"
+#include "../Font/Alibaba-PuHuiTi-Light.h"
+#include "../Font/Alibaba-PuHuiTi-Medium.h"
+#include "../Font/Alibaba-PuHuiTi-Regular.h"
+
 #pragma warning(push)
 #pragma warning(disable: 26451)
 #pragma warning(disable: 26812)
@@ -53,6 +59,22 @@ namespace g_MDX9 {
             ImGuiIO& io = ImGui::GetIO();
             io.IniFilename = nullptr;
             io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+
+            ImFontAtlas* atlas = io.Fonts;
+            const ImWchar* range = atlas->GetGlyphRangesChineseFull();
+
+            // Ä¬ÈÏ×ÖÌå
+            // Alibaba-PuHuiTi-Regular
+            g_MDX9::g_Alibaba_PuHuiTi_Regular = io.Fonts->AddFontFromMemoryTTF(g_Fonts::Alibaba_PuHuiTi_Regular, sizeof(g_Fonts::Alibaba_PuHuiTi_Regular), 18.0f, NULL, range);
+
+            // Alibaba-PuHuiTi-Bold
+            g_MDX9::g_Alibaba_PuHuiTi_Bold = io.Fonts->AddFontFromMemoryTTF(g_Fonts::Alibaba_PuHuiTi_Bold, sizeof(g_Fonts::Alibaba_PuHuiTi_Bold), 18.0f, NULL, range);
+            // Alibaba-PuHuiTi-Heavy
+            g_MDX9::g_Alibaba_PuHuiTi_Heavy = io.Fonts->AddFontFromMemoryTTF(g_Fonts::Alibaba_PuHuiTi_Heavy, sizeof(g_Fonts::Alibaba_PuHuiTi_Heavy), 18.0f, NULL, range);
+            // Alibaba-PuHuiTi-Light
+            g_MDX9::g_Alibaba_PuHuiTi_Light = io.Fonts->AddFontFromMemoryTTF(g_Fonts::Alibaba_PuHuiTi_Light, sizeof(g_Fonts::Alibaba_PuHuiTi_Light), 18.0f, NULL, range);
+            // Alibaba-PuHuiTi-Medium
+            g_MDX9::g_Alibaba_PuHuiTi_Medium = io.Fonts->AddFontFromMemoryTTF(g_Fonts::Alibaba_PuHuiTi_Medium, sizeof(g_Fonts::Alibaba_PuHuiTi_Medium), 18.0f, NULL, range);
 
             // Initialize DX9 backend
             ImGui_ImplDX9_Init(pDevice);

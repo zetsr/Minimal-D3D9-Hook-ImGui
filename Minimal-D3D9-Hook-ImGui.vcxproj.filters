@@ -13,6 +13,9 @@
     <Filter Include="MinHook\include">
       <UniqueIdentifier>{c8505d5d-b451-43e4-9b66-0abbe32e5c0e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Font">
+      <UniqueIdentifier>{3c13775b-50d2-4fe4-893d-be557500a0eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main\mdx9_api.h">
@@ -44,6 +47,21 @@
     </ClInclude>
     <ClInclude Include="MinHook\include\MinHook.h">
       <Filter>MinHook\include</Filter>
+    </ClInclude>
+    <ClInclude Include="Font\Alibaba-PuHuiTi-Bold.h">
+      <Filter>Font</Filter>
+    </ClInclude>
+    <ClInclude Include="Font\Alibaba-PuHuiTi-Heavy.h">
+      <Filter>Font</Filter>
+    </ClInclude>
+    <ClInclude Include="Font\Alibaba-PuHuiTi-Light.h">
+      <Filter>Font</Filter>
+    </ClInclude>
+    <ClInclude Include="Font\Alibaba-PuHuiTi-Medium.h">
+      <Filter>Font</Filter>
+    </ClInclude>
+    <ClInclude Include="Font\Alibaba-PuHuiTi-Regular.h">
+      <Filter>Font</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

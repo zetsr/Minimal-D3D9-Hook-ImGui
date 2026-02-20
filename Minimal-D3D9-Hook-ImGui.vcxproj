@@ -19,6 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Font\Alibaba-PuHuiTi-Bold.h" />
+    <ClInclude Include="Font\Alibaba-PuHuiTi-Heavy.h" />
+    <ClInclude Include="Font\Alibaba-PuHuiTi-Light.h" />
+    <ClInclude Include="Font\Alibaba-PuHuiTi-Medium.h" />
+    <ClInclude Include="Font\Alibaba-PuHuiTi-Regular.h" />
     <ClInclude Include="ImGui\imconfig.h" />
     <ClInclude Include="ImGui\imgui.h" />
     <ClInclude Include="ImGui\imgui_impl_dx9.h" />

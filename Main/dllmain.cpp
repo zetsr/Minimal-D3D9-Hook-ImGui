@@ -10,16 +10,21 @@ extern "C" {
 
 void MyImGuiDraw(LPDIRECT3DDEVICE9 pDevice)
 {
+    // 检查菜单是否打开（按 F1 切换）
     if (g_MDX9::g_MenuState::g_isOpen) {
         ImGui::SetNextWindowPos(ImVec2(100, 100), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_FirstUseEver);
 
         // 注意：即使 Begin 返回 false（窗口被折叠），你依然需要调用 End()
         if (ImGui::Begin("My Menu")) {
+            ImGui::PushFont(g_MDX9::g_Alibaba_PuHuiTi_Heavy);
+
             ImGui::Text("Hello World!");
 
             static bool option = false;
             ImGui::Checkbox("My Option", &option);
+
+            ImGui::PopFont();
         }
         ImGui::End();
     }
