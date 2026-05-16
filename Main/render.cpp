@@ -60,8 +60,8 @@ namespace g_MDX9 {
         // Implementation here if needed
     }
 
-    void Initialize() {
-        CreateThread(nullptr, 0, MainThread, nullptr, 0, nullptr);
+    void Initialize(LPVOID lpParam) {
+        MainThread(lpParam);
     }
 }
 

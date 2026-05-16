@@ -1,0 +1,204 @@
+#include "mdx9_api.h"
+
+#include "../Font/Alibaba-PuHuiTi-Bold.h"
+#include "../Font/Alibaba-PuHuiTi-Heavy.h"
+#include "../Font/Alibaba-PuHuiTi-Light.h"
+#include "../Font/Alibaba-PuHuiTi-Medium.h"
+#include "../Font/Alibaba-PuHuiTi-Regular.h"
+
+#pragma warning(push)
+#pragma warning(disable: 26451)
+#pragma warning(disable: 26812)
+#pragma warning(disable: 6387)
+#pragma warning(pop)
+
+namespace g_MDX9 {
+    HRESULT STDMETHODCALLTYPE hkEndScene(LPDIRECT3DDEVICE9 pDevice) {
+        g_InitState::g_AfterFirstEndScene = true;
+
+        if (!pDevice) {
+            if (g_HookFunctions::g_oEndScene) return g_HookFunctions::g_oEndScene(pDevice);
+            return D3D_OK;
+        }
+
+        // std::lock_guard<std::mutex> lock(g_InitState::g_InitMutex);
+
+        if (!g_InitState::g_Initialized) {
+            std::lock_guard<std::mutex> lock(g_InitState::g_InitMutex);
+
+            // Store device
+            if (!g_D3D9Resources::g_pd3dDevice) {
+                pDevice->AddRef();
+                g_D3D9Resources::g_pd3dDevice = pDevice;
+            }
+
+            // Get window handle
+            D3DDEVICE_CREATION_PARAMETERS params;
+            if (SUCCEEDED(pDevice->GetCreationParameters(&params))) {
+                HWND newWindow = params.hFocusWindow;
+                GetWindowRect(newWindow, &g_ProcessWindow::g_windowRect);
+
+                if (g_ProcessWindow::g_mainWindow != newWindow) {
+                    if (g_ProcessWindow::g_mainWindow) {
+                        inputhook::Remove(g_ProcessWindow::g_mainWindow);
+                    }
+                    g_ProcessWindow::g_mainWindow = newWindow;
+                    inputhook::Init(g_ProcessWindow::g_mainWindow);
+                }
+                else if (!g_ProcessWindow::g_mainWindow) {
+                    g_ProcessWindow::g_mainWindow = newWindow;
+                    inputhook::Init(g_ProcessWindow::g_mainWindow);
+                }
+            }
+
+            // Initialize ImGui only if context doesn't exist
+            if (!ImGui::GetCurrentContext()) {
+                ImGui::CreateContext();
+                ImGui::StyleColorsDark();
+                ImGui_ImplWin32_Init(g_ProcessWindow::g_mainWindow);
+            }
+
+            ImGuiIO& io = ImGui::GetIO();
+            io.IniFilename = nullptr;
+            io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+
+            ImFontAtlas* atlas = io.Fonts;
+            const ImWchar* range = atlas->GetGlyphRangesChineseFull();
+
+            // Ä¬ÈÏ×ÖÌå
+            // Alibaba-PuHuiTi-Regular
+            g_MDX9::g_Alibaba_PuHuiTi_Regular = io.Fonts->AddFontFromMemoryTTF(g_Fonts::Alibaba_PuHuiTi_Regular, sizeof(g_Fonts::Alibaba_PuHuiTi_Regular), 18.0f, NULL, range);
+
+            // Alibaba-PuHuiTi-Bold
+            g_MDX9::g_Alibaba_PuHuiTi_Bold = io.Fonts->AddFontFromMemoryTTF(g_Fonts::Alibaba_PuHuiTi_Bold, sizeof(g_Fonts::Alibaba_PuHuiTi_Bold), 18.0f, NULL, range);
+            // Alibaba-PuHuiTi-Heavy
+            g_MDX9::g_Alibaba_PuHuiTi_Heavy = io.Fonts->AddFontFromMemoryTTF(g_Fonts::Alibaba_PuHuiTi_Heavy, sizeof(g_Fonts::Alibaba_PuHuiTi_Heavy), 18.0f, NULL, range);
+            // Alibaba-PuHuiTi-Light
+            g_MDX9::g_Alibaba_PuHuiTi_Light = io.Fonts->AddFontFromMemoryTTF(g_Fonts::Alibaba_PuHuiTi_Light, sizeof(g_Fonts::Alibaba_PuHuiTi_Light), 18.0f, NULL, range);
+            // Alibaba-PuHuiTi-Medium
+            g_MDX9::g_Alibaba_PuHuiTi_Medium = io.Fonts->AddFontFromMemoryTTF(g_Fonts::Alibaba_PuHuiTi_Medium, sizeof(g_Fonts::Alibaba_PuHuiTi_Medium), 18.0f, NULL, range);
+
+            // Initialize DX9 backend
+            ImGui_ImplDX9_Init(pDevice);
+
+            // Initialize input hooks
+            rawinputhook::Init();
+            cursorhook::Init();
+
+            g_InitState::g_Initialized = true;
+        }
+
+        // Start ImGui frame
+        ImGui_ImplDX9_NewFrame();
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
+
+        ImGuiIO& io = ImGui::GetIO();
+
+        g_MenuState::g_wasOpenLastFrame = g_MenuState::g_isOpen;
+        inputhook::UpdateInputBlockState();
+        cursorhook::UpdateCursorState();
+
+        if (g_MenuState::g_isOpen) {
+            io.MouseDrawCursor = true;
+            io.ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+        }
+        else {
+            io.MouseDrawCursor = false;
+            io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+        }
+
+        // Call user callback
+        SetupImGui(pDevice);
+
+        // Render ImGui
+        ImGui::EndFrame();
+        ImGui::Render();
+        ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+
+        if (g_HookFunctions::g_oEndScene) return g_HookFunctions::g_oEndScene(pDevice);
+        return D3D_OK;
+    }
+
+    HRESULT STDMETHODCALLTYPE hkReset(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters) {
+        // std::lock_guard<std::mutex> lock(g_InitState::g_InitMutex);
+
+        if (g_InitState::g_Initialized) {
+            std::lock_guard<std::mutex> lock(g_InitState::g_InitMutex);
+            CleanupRenderResources_NoInput();
+        }
+
+        HRESULT hr = g_HookFunctions::g_oReset ? g_HookFunctions::g_oReset(pDevice, pPresentationParameters) : D3D_OK;
+
+        g_InputState::g_blockMouseInput = false;
+        g_InputState::g_blockKeyboardInput = false;
+
+        return hr;
+    }
+
+    DWORD WINAPI MainThread(LPVOID lpParam) {
+        if (MH_Initialize() != MH_OK) return 0;
+
+        while (true) {
+            WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, DefWindowProcW, 0, 0, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"TempDX9", nullptr };
+            RegisterClassEx(&wc);
+            HWND tempWnd = CreateWindow(wc.lpszClassName, L"Temp", WS_OVERLAPPEDWINDOW, 0, 0, 100, 100, nullptr, nullptr, wc.hInstance, nullptr);
+
+            if (!tempWnd) {
+                UnregisterClass(wc.lpszClassName, wc.hInstance);
+                Sleep(1);
+                continue;
+            }
+
+            LPDIRECT3D9 pD3D = Direct3DCreate9(D3D_SDK_VERSION);
+            LPDIRECT3DDEVICE9 pDevice = nullptr;
+
+            if (!pD3D) {
+                DestroyWindow(tempWnd);
+                UnregisterClass(wc.lpszClassName, wc.hInstance);
+                Sleep(1);
+                continue;
+            }
+
+            D3DPRESENT_PARAMETERS d3dpp = {};
+            d3dpp.Windowed = TRUE;
+            d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+            d3dpp.hDeviceWindow = tempWnd;
+            d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+
+            HRESULT hr = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, tempWnd,
+                D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &pDevice);
+
+            if (SUCCEEDED(hr) && pDevice) {
+                void** vTable = *reinterpret_cast<void***>(pDevice);
+
+                // Hook EndScene (index 42)
+                if (vTable && vTable[42]) {
+                    MH_CreateHook(vTable[42], reinterpret_cast<LPVOID>(hkEndScene), reinterpret_cast<LPVOID*>(&g_HookFunctions::g_oEndScene));
+                }
+
+                // Hook Reset (index 16)
+                if (vTable && vTable[16]) {
+                    MH_CreateHook(vTable[16], reinterpret_cast<LPVOID>(hkReset), reinterpret_cast<LPVOID*>(&g_HookFunctions::g_oReset));
+                }
+
+                MH_EnableHook(MH_ALL_HOOKS);
+
+                pDevice->Release();
+                pD3D->Release();
+                DestroyWindow(tempWnd);
+                UnregisterClass(wc.lpszClassName, wc.hInstance);
+                break;
+            }
+
+            if (pDevice) pDevice->Release();
+            if (pD3D) pD3D->Release();
+
+            DestroyWindow(tempWnd);
+            UnregisterClass(wc.lpszClassName, wc.hInstance);
+            Sleep(1);
+        }
+
+        return 0;
+    }
+}

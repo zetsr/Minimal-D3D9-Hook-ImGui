@@ -1,13 +1,5 @@
 ﻿#include "mdx9_api.h"
 
-extern "C" {
-#include "../MinHook/src/buffer.c"
-#include "../MinHook/src/hook.c"
-#include "../MinHook/src/trampoline.c"
-#include "../MinHook/src/hde/hde32.c"
-#include "../MinHook/src/hde/hde64.c"
-}
-
 void MyImGuiDraw(LPDIRECT3DDEVICE9 pDevice)
 {
     // 检查菜单是否打开（按 F1 切换）
@@ -30,15 +22,22 @@ void MyImGuiDraw(LPDIRECT3DDEVICE9 pDevice)
     }
 }
 
+void init(LPVOID lpParam) {
+    g_MDX9::Initialize(lpParam);
+    g_MDX9::SetSetupImGuiCallback(MyImGuiDraw);
+}
+
+void MainThread(LPVOID lpParam) {
+    init(lpParam);
+}
+
+
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
     switch (ul_reason_for_call) {
     case DLL_PROCESS_ATTACH:
         // 初始化 Hook 系统
-        g_MDX9::Initialize();
-
-        // 设置自定义绘制回调
-        g_MDX9::SetSetupImGuiCallback(MyImGuiDraw);
+        if (HANDLE h = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)MainThread, hModule, 0, nullptr)) CloseHandle(h);
         break;
 
     case DLL_PROCESS_DETACH:
